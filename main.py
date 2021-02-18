@@ -34,10 +34,12 @@ for entry in dir_list:
         info['title'] = entry
 
     print(info['title'])
+
+    worksheet.write(row, col, info['title'])
+
     movies_info = ia.search_movie(info['title'])
     if len(movies_info) != 0:
         print(movies_info[0], movies_info[0].movieID, ia.get_imdbURL(movies_info[0]))
-        worksheet.write(row, col, info['title'])
         worksheet.write_url(row=row,col=col + 1, url=str(ia.get_imdbURL(movies_info[0])), string=str(movies_info[0]))
 
         # TODO: cross check release year to find the correct movie (I just use the first result for now)
@@ -46,11 +48,12 @@ for entry in dir_list:
             worksheet.write(row, col+2, str(imdb_info['year']))
         if 'directors' in imdb_info:
             # TODO: handle multiple directors & insert hyperlink
-            # person = Person(imdb_info['directors'][0])
-            # worksheet.write_url(row=row, col=col + 3, url=str(ia.get_imdbURL(person.id),
-            #                     string=str(person.name)))
+            person = imdb_info['directors'][0]
+            worksheet.write_url(row=row, col=col + 3, url=ia.get_imdbURL(person),
+                                string=person['name'])
 
-            worksheet.write(row, col+3, str(imdb_info['directors'][0]['name']))
+
+             #worksheet.write(row, col+3, str(imdb_info['directors'][0]['name']))
         if 'genres' in imdb_info:
             worksheet.write(row, col+4, str(",".join(imdb_info['genres'])))
 
