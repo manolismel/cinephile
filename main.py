@@ -4,8 +4,8 @@ import PTN
 import xlsxwriter
 
 
-root = "g:\\Users\\manolis\\Downloads\\0001]_[video\\__latest\\"
-
+# root = "g:\\Users\\manolis\\Downloads\\0001]_[video\\__latest\\"
+root = "j:\\Films\\"
 # directories (movies)
 
 dir_list = [item for item in os.listdir(root) if os.path.isdir(os.path.join(root,item)) and item[0] != '_']
@@ -16,12 +16,12 @@ print("Parsed HDD directory films --- Found "+str(len(dir_list))+" titles")
 ia = IMDb()
 
 # TODO: - filename like: _contentsList_[date]
-# - store the contents file in movie folder
-# - logic to check for contents when running and ignore duplicate (using existing file)
-# - handle series (different worksheet?)
-# - include files (currently lists only folders)
-# - introduce args (a. folder(s))
-# - logging
+# TODO: - store the contents file in movie folder
+# TODO: - logic to check for contents when running and ignore duplicate (using existing file)
+# TODO: - handle series (different worksheet?)
+# TODO: - include files (currently lists only folders)
+# TODO: - introduce args (a. folder(s))
+# TODO: - logging
 
 workbook = xlsxwriter.Workbook('export.xlsx')
 worksheet = workbook.add_worksheet()
@@ -53,8 +53,9 @@ for entry in dir_list:
         print(movies_info[0], movies_info[0].movieID, ia.get_imdbURL(movies_info[0]))
 
 
-        # TODO: cross check release year to find the correct movie
-        # issues when a. there is no year in the torrent title, b. the year in the torrent title is wron
+        # cross check release year to find the correct movie
+        # issues when a. there is no year in the torrent title, b. the year in the torrent title is wrong
+        # TODO: if no-match for all results: keep first
         imdb_info=ia.get_movie(movies_info[0].movieID)
         if 'year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']:
             worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
