@@ -1,16 +1,19 @@
 import os
-from imdb import IMDb
+from imdb import IMDb, _logging
 import PTN
 import xlsxwriter
+import logging
 
+_logging.setLevel("error")
+logging.basicConfig(format='[%(asctime)s] %(levelname)s:: %(message)s', level=logging.INFO)
 
 # root = "g:\\Users\\manolis\\Downloads\\0001]_[video\\__latest\\"
 root = "j:\\Films\\"
-# directories (movies)
 
-dir_list = [item for item in os.listdir(root) if os.path.isdir(os.path.join(root,item)) and item[0] != '_']
-print(dir_list)
-print("Parsed HDD directory films --- Found "+str(len(dir_list))+" titles")
+#dir_list = [item for item in os.listdir(root) if os.path.isdir(os.path.join(root,item)) and item[0] != '_']
+dir_list = [item for item in os.listdir(root) if item[0] != '_']
+
+logging.info(f"Parsed {root} directory, found: {len(dir_list)} entries")
 
 # create an instance of the IMDb class
 ia = IMDb()
@@ -44,20 +47,19 @@ for entry in dir_list:
     if info['title'] == '':
         info['title'] = entry
 
-    print(info['title'])
-
     worksheet.write(row, col, info['title'])
 
     movies_info = ia.search_movie(info['title'])
     if len(movies_info) != 0:
-        print(movies_info[0], movies_info[0].movieID, ia.get_imdbURL(movies_info[0]))
-
+        logging.info(f"first result for {info['title']} :  -> {movies_info[0]} : {ia.get_imdbURL(movies_info[0])} ")
 
         # cross check release year to find the correct movie
         # issues when a. there is no year in the torrent title, b. the year in the torrent title is wrong
         # TODO: if no-match for all results: keep first
         imdb_info=ia.get_movie(movies_info[0].movieID)
-        if 'year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']:
+
+        if ('year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']) or 'year' not in info:
+            logging.info(f"I decided to keep the first result :)")
             worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
                                 string=str(imdb_info))
             worksheet.write(row, col + 2, str(imdb_info['year']))
@@ -65,6 +67,7 @@ for entry in dir_list:
             for movie in movies_info[1:]:
                 imdb_info = ia.get_movie(movie.movieID)
                 if 'year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']:
+                    logging.info(f"Matched year of release for: {imdb_info} -> {ia.get_imdbURL(imdb_info)}, ")
                     worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
                                         string=str(imdb_info))
                     worksheet.write(row, col + 2, str(imdb_info['year']))
@@ -82,7 +85,7 @@ for entry in dir_list:
 
 
     else:
-        print("ImDB returned no results")
+        logging.info(f"imdb returned no results for : {info['title']}")
 
     row +=1
 
