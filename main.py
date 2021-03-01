@@ -4,11 +4,12 @@ import PTN
 import xlsxwriter
 import logging
 
-_logging.setLevel("error")
 logging.basicConfig(format='[%(asctime)s] %(levelname)s:: %(message)s', level=logging.INFO)
+_logging.setLevel("error") # only for imdbpy
 
-# root = "g:\\Users\\manolis\\Downloads\\0001]_[video\\__latest\\"
-root = "j:\\Films\\"
+root = "g:\\Users\\manolis\\Downloads\\0001]_[video\\films\\"
+# root = "j:\\Films\\"
+# root = "H:\\films\\"
 
 #dir_list = [item for item in os.listdir(root) if os.path.isdir(os.path.join(root,item)) and item[0] != '_']
 dir_list = [item for item in os.listdir(root) if item[0] != '_']
