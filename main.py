@@ -2,18 +2,37 @@ import os
 from imdb import IMDb, _logging
 import PTN
 import xlsxwriter
+import argparse
 import logging
 
+cli_parser = argparse.ArgumentParser()
+cli_parser.add_argument('--root', type=str, default='/Volumes/Untitled/Movies/',
+                        help="Path of folder containing downloaded movies")
+cli_parser.add_argument('--dir_format', type=bool, default=True,
+                        help="Movies downloaded as folders with the mp4/mkv stored inside")
+cli_parser.add_argument('--file_format', type=bool, default=False,
+                        help="Movies downloaded directly as mp4/mkv files")
+cli_parser.add_argument('--special_folders', type=str, default='_',
+                        help="Any special folders structure, like movies stored per director folder, starting"
+                             "with an underscore: e.g. _Aggelopoulos/")
 logging.basicConfig(format='[%(asctime)s] %(levelname)s:: %(message)s', level=logging.INFO)
 _logging.setLevel("error") # only for imdbpy
 
-root = "g:\\Users\\manolis\\Downloads\\0001]_[video\\films\\"
-# root = "j:\\Films\\"
-# root = "H:\\films\\"
+args = cli_parser.parse_args()
 
-#dir_list = [item for item in os.listdir(root) if os.path.isdir(os.path.join(root,item)) and item[0] != '_']
-dir_list = [item for item in os.listdir(root) if item[0] != '_']
+# list with all movie titles as loaded from root
+movies_list = []
 
+if args.dir_format:
+    # parses movies downloaded as folders
+    dir_list = [item for item in os.listdir(args.root) if os.path.isdir(os.path.join(args.root,item))
+                and item[0] != args.special_folders]
+
+if args.dir_format:
+    # parses movies downloaded directly as files (e.g. mp4)
+    files_list = [f for f in os.listdir(args.root) if os.path.isfile(os.path.join(args.root,f))]
+
+movies_list = dir_list + files_list
 logging.info(f"Parsed {root} directory, found: {len(dir_list)} entries")
 
 # create an instance of the IMDb class
@@ -25,7 +44,6 @@ ia = IMDb()
 # TODO: - handle series (different worksheet?)
 # TODO: - include files (currently lists only folders)
 # TODO: - introduce args (a. folder(s))
-# TODO: - logging
 
 workbook = xlsxwriter.Workbook('export.xlsx')
 worksheet = workbook.add_worksheet()
@@ -39,7 +57,7 @@ worksheet.write(0, 4, "Genres")
 row = 1
 col = 0
 
-for entry in dir_list:
+for entry in movies_list:
     info = PTN.parse(entry)
 
     if 'season' in info:
