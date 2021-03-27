@@ -34,7 +34,7 @@ if args.dir_format:
     files_list = [f for f in os.listdir(args.root) if os.path.isfile(os.path.join(args.root,f))]
 
 movies_list = dir_list + files_list
-logging.info(f"Parsed {root} directory, found: {len(dir_list)} entries")
+logging.info(f"Parsed {args.root} directory, found: {len(movies_list)} entries")
 
 # create an instance of the IMDb class
 ia = IMDb()
