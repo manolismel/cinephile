@@ -15,6 +15,7 @@ cli_parser.add_argument('--file_format', type=bool, default=False,
 cli_parser.add_argument('--special_folders', type=str, default='_',
                         help="Any special folders structure, like movies stored per director folder, starting"
                              "with an underscore: e.g. _Aggelopoulos/")
+
 logging.basicConfig(format='[%(asctime)s] %(levelname)s:: %(message)s', level=logging.INFO)
 _logging.setLevel("error") # only for imdbpy
 
@@ -43,7 +44,6 @@ ia = IMDb()
 # TODO: - logic to check for contents when running and ignore duplicate (using existing file)
 # TODO: - handle series (different worksheet?)
 # TODO: - include files (currently lists only folders)
-# TODO: - introduce args (a. folder(s))
 
 workbook = xlsxwriter.Workbook('export.xlsx')
 worksheet = workbook.add_worksheet()
