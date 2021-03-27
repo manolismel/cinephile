@@ -43,7 +43,6 @@ ia = IMDb()
 # TODO: - store the contents file in movie folder
 # TODO: - logic to check for contents when running and ignore duplicate (using existing file)
 # TODO: - handle series (different worksheet?)
-# TODO: - include files (currently lists only folders)
 
 workbook = xlsxwriter.Workbook('export.xlsx')
 worksheet = workbook.add_worksheet()
