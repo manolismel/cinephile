@@ -1,8 +1,9 @@
 import os
-from imdb import IMDb
+from imdb import IMDb, _logging
 import PTN
 import xlsxwriter
 import argparse
+import logging
 
 cli_parser = argparse.ArgumentParser()
 cli_parser.add_argument('--root', type=str, default='/Volumes/Untitled/Movies/',
@@ -14,6 +15,8 @@ cli_parser.add_argument('--file_format', type=bool, default=False,
 cli_parser.add_argument('--special_folders', type=str, default='_',
                         help="Any special folders structure, like movies stored per director folder, starting"
                              "with an underscore: e.g. _Aggelopoulos/")
+logging.basicConfig(format='[%(asctime)s] %(levelname)s:: %(message)s', level=logging.INFO)
+_logging.setLevel("error") # only for imdbpy
 
 args = cli_parser.parse_args()
 
@@ -30,7 +33,7 @@ if args.dir_format:
     files_list = [f for f in os.listdir(args.root) if os.path.isfile(os.path.join(args.root,f))]
 
 movies_list = dir_list + files_list
-print("Parsed HDD directory films --- Found "+str(len(movies_list))+" titles")
+logging.info(f"Parsed {root} directory, found: {len(dir_list)} entries")
 
 # create an instance of the IMDb class
 ia = IMDb()
@@ -41,7 +44,6 @@ ia = IMDb()
 # TODO: - handle series (different worksheet?)
 # TODO: - include files (currently lists only folders)
 # TODO: - introduce args (a. folder(s))
-# TODO: - logging
 
 workbook = xlsxwriter.Workbook('export.xlsx')
 worksheet = workbook.add_worksheet()
@@ -64,20 +66,19 @@ for entry in movies_list:
     if info['title'] == '':
         info['title'] = entry
 
-    print(info['title'])
-
     worksheet.write(row, col, info['title'])
 
     movies_info = ia.search_movie(info['title'])
     if len(movies_info) != 0:
-        print(movies_info[0], movies_info[0].movieID, ia.get_imdbURL(movies_info[0]))
-
+        logging.info(f"first result for {info['title']} :  -> {movies_info[0]} : {ia.get_imdbURL(movies_info[0])} ")
 
         # cross check release year to find the correct movie
         # issues when a. there is no year in the torrent title, b. the year in the torrent title is wrong
         # TODO: if no-match for all results: keep first
         imdb_info=ia.get_movie(movies_info[0].movieID)
-        if 'year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']:
+
+        if ('year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']) or 'year' not in info:
+            logging.info(f"I decided to keep the first result :)")
             worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
                                 string=str(imdb_info))
             worksheet.write(row, col + 2, str(imdb_info['year']))
@@ -85,6 +86,7 @@ for entry in movies_list:
             for movie in movies_info[1:]:
                 imdb_info = ia.get_movie(movie.movieID)
                 if 'year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']:
+                    logging.info(f"Matched year of release for: {imdb_info} -> {ia.get_imdbURL(imdb_info)}, ")
                     worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
                                         string=str(imdb_info))
                     worksheet.write(row, col + 2, str(imdb_info['year']))
@@ -102,7 +104,7 @@ for entry in movies_list:
 
 
     else:
-        print("ImDB returned no results")
+        logging.info(f"imdb returned no results for : {info['title']}")
 
     row +=1
 
