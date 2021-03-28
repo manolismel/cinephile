@@ -17,7 +17,7 @@ cli_parser.add_argument('--special_folders', type=str, default='_',
                              "with an underscore: e.g. _Aggelopoulos/")
 
 logging.basicConfig(format='[%(asctime)s] %(levelname)s:: %(message)s', level=logging.INFO)
-_logging.setLevel("error") # only for imdbpy
+_logging.setLevel("error")  # only for imdbpy
 
 args = cli_parser.parse_args()
 
@@ -26,12 +26,12 @@ movies_list = []
 
 if args.dir_format:
     # parses movies downloaded as folders
-    dir_list = [item for item in os.listdir(args.root) if os.path.isdir(os.path.join(args.root,item))
+    dir_list = [item for item in os.listdir(args.root) if os.path.isdir(os.path.join(args.root, item))
                 and item[0] != args.special_folders]
 
 if args.dir_format:
     # parses movies downloaded directly as files (e.g. mp4)
-    files_list = [f for f in os.listdir(args.root) if os.path.isfile(os.path.join(args.root,f))]
+    files_list = [f for f in os.listdir(args.root) if os.path.isfile(os.path.join(args.root, f))]
 
 movies_list = dir_list + files_list
 logging.info(f"Parsed {args.root} directory, found: {len(movies_list)} entries")
@@ -74,7 +74,7 @@ for entry in movies_list:
         # cross check release year to find the correct movie
         # issues when a. there is no year in the torrent title, b. the year in the torrent title is wrong
         # TODO: if no-match for all results: keep first
-        imdb_info=ia.get_movie(movies_info[0].movieID)
+        imdb_info = ia.get_movie(movies_info[0].movieID)
 
         if ('year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']) or 'year' not in info:
             logging.info(f"I decided to keep the first result :)")
@@ -104,10 +104,9 @@ for entry in movies_list:
         if 'genres' in imdb_info:
             worksheet.write(row, col+4, str(",".join(imdb_info['genres'])))
 
-
     else:
         logging.info(f"imdb returned no results for : {info['title']}")
 
-    row +=1
+    row += 1
 
 workbook.close()
