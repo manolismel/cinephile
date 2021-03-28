@@ -46,15 +46,14 @@ ia = IMDb()
 
 workbook = xlsxwriter.Workbook('export.xlsx')
 worksheet = workbook.add_worksheet()
-# TODO: do this prettier:
-worksheet.write(0, 0, "Title")
-worksheet.write(0, 1, "ImDB")
-worksheet.write(0, 2, "Year")
-worksheet.write(0, 3, "Director")
-worksheet.write(0, 4, "Genres")
+
+column_dict = {"Title": 0, "ImDB": 1, "Year": 2, "Director": 3, "Genres": 4}
+
+# Create header
+for column_name, column_pos in column_dict.items():
+    worksheet.write(0, column_pos, column_name)
 
 row = 1
-col = 0
 
 for entry in movies_list:
     info = PTN.parse(entry)
@@ -65,7 +64,7 @@ for entry in movies_list:
     if info['title'] == '':
         info['title'] = entry
 
-    worksheet.write(row, col, info['title'])
+    worksheet.write(row, column_dict["Title"], info['title'])
 
     movies_info = ia.search_movie(info['title'])
     if len(movies_info) != 0:
@@ -78,31 +77,31 @@ for entry in movies_list:
 
         if ('year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']) or 'year' not in info:
             logging.info(f"I decided to keep the first result :)")
-            worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
+            worksheet.write_url(row=row, col=column_dict["ImDB"], url=str(ia.get_imdbURL(imdb_info)),
                                 string=str(imdb_info))
 
             if 'year' in imdb_info:
-                worksheet.write(row, col + 2, str(imdb_info['year']))
+                worksheet.write(row, column_dict["Year"], str(imdb_info['year']))
 
         else:
             for movie in movies_info[1:]:
                 imdb_info = ia.get_movie(movie.movieID)
                 if 'year' in imdb_info and 'year' in info and imdb_info['year'] == info['year']:
                     logging.info(f"Matched year of release for: {imdb_info} -> {ia.get_imdbURL(imdb_info)}, ")
-                    worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
+                    worksheet.write_url(row=row, col=column_dict["ImDB"], url=str(ia.get_imdbURL(imdb_info)),
                                         string=str(imdb_info))
 
-                    worksheet.write(row, col + 2, str(imdb_info['year']))
+                    worksheet.write(row, column_dict["Year"], str(imdb_info['year']))
                     break
 
         if 'directors' in imdb_info:
             # TODO: handle multiple directors & their hyperlinks
             person = imdb_info['directors'][0]
-            worksheet.write_url(row=row, col=col + 3, url=ia.get_imdbURL(person),
+            worksheet.write_url(row=row, col=column_dict["Director"], url=ia.get_imdbURL(person),
                                 string=person['name'])
 
         if 'genres' in imdb_info:
-            worksheet.write(row, col+4, str(",".join(imdb_info['genres'])))
+            worksheet.write(row, column_dict["Genres"], str(",".join(imdb_info['genres'])))
 
     else:
         logging.info(f"imdb returned no results for : {info['title']}")
