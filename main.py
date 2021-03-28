@@ -80,7 +80,10 @@ for entry in movies_list:
             logging.info(f"I decided to keep the first result :)")
             worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
                                 string=str(imdb_info))
-            worksheet.write(row, col + 2, str(imdb_info['year']))
+
+            if 'year' in imdb_info:
+                worksheet.write(row, col + 2, str(imdb_info['year']))
+
         else:
             for movie in movies_info[1:]:
                 imdb_info = ia.get_movie(movie.movieID)
@@ -88,9 +91,9 @@ for entry in movies_list:
                     logging.info(f"Matched year of release for: {imdb_info} -> {ia.get_imdbURL(imdb_info)}, ")
                     worksheet.write_url(row=row, col=col + 1, url=str(ia.get_imdbURL(imdb_info)),
                                         string=str(imdb_info))
+
                     worksheet.write(row, col + 2, str(imdb_info['year']))
                     break
-
 
         if 'directors' in imdb_info:
             # TODO: handle multiple directors & their hyperlinks
