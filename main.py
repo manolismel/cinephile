@@ -96,6 +96,7 @@ for entry in movies_list:
 
         if 'directors' in imdb_info:
             # TODO: handle multiple directors & their hyperlinks
+            #WIP
             person = imdb_info['directors'][0]
             worksheet.write_url(row=row, col=column_dict["Director"], url=ia.get_imdbURL(person),
                                 string=person['name'])
